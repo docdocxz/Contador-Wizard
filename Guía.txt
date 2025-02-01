@@ -1,0 +1,16 @@
+RESUMEN
+Contador de puntos para el Wizard®. Según la cantidad de jugadores varía la cantidad de manos. Antes de cada juego se ingresa la apuesta de cada jugador. Al final de cada juego se ingresa la cantidad de puntos que sumó cada jugador y se hace la cuenta de cuántos puntos ganó/perdió cada jugador.
+
+ARQUITECTURA
+
+Si no se cumple R1, el programa guarda la cantidad de apuestas de todos los jugadores menos la del último y se indica la cantidad de puntos que éste NO puede apostar.
+
+RESTRICCIONES
+R1: La suma de apuestas de todos los jugadores no puede ser igual a la cantidad de manos que se jugarán.
+
+
+FEATURES
+Indicar quién reparte
+Indicar cuántas cartas se reparten.
+
+FORMATO DE DATOS DE PUNTUACIÓN
