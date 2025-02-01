@@ -1,0 +1,42 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    var juego = ViewData["numJuego"] as int?;
+    var repartidor = ViewData["Repartidor"] as string;
+    var error = ViewData["error"] as string;
+    int variable = 1;
+}
+
+@model List<Contador_para_Wizard.Models.Jugador>
+
+
+<h2>Juego número @juego</h2>
+<h2>Reparte @repartidor</h2>
+
+<p style="color:red;">@error</p>
+
+<form action="/partida/principiodejuego" method="post" name="apuestas">
+    <table>
+        <thead>
+            <tr>
+                <th>Jugador</th>
+                <th>Puntos</th>
+                <th>Apuesta</th>
+                <th>Manos hechas</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model) {
+                <tr>
+                    <td>@p.nombre</td>
+                    <td>@p.puntos</td>
+                    <td><input type="number" name="@String.Concat("a",variable)" value="@p.apuesta"/></td>
+                    <td>-</td>
+                </tr>
+                variable = variable + 1;
+                }
+        </tbody>
+    </table><br />
+    <input type="submit" />
+</form>
