@@ -9,7 +9,6 @@ namespace Contador_para_Wizard.Models {
         public static int repartidor = 0;
         public static int CantidaddeJuegos;
         public static bool ToWinner = false;
-        public static Dictionary<string,int> winner = new Dictionary<string,int>();
 
         private static void ApuestasDump() {
             foreach (var i in Jugadores) {
