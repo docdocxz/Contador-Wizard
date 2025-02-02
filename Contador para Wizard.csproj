@@ -7,4 +7,20 @@
     <RootNamespace>Contador_para_Wizard</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Remove="Views\Winner.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Winner.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Winner.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Views\Winner.cshtml" />
+  </ItemGroup>
+
 </Project>

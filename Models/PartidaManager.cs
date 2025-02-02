@@ -7,6 +7,9 @@ namespace Contador_para_Wizard.Models {
         public static int cantidadJugadores = 0;
         public static int numJuego = 1;
         public static int repartidor = 0;
+        public static int CantidaddeJuegos;
+        public static bool ToWinner = false;
+        public static Dictionary<string,int> winner = new Dictionary<string,int>();
 
         private static void ApuestasDump() {
             foreach (var i in Jugadores) {
@@ -21,6 +24,7 @@ namespace Contador_para_Wizard.Models {
                     cantidadJugadores++;
                     }
                 }
+            CantidaddeJuegos = 60 / cantidadJugadores;
             }
 
         public static void CrearApuestas(List<int> apuestas) {
@@ -52,8 +56,17 @@ namespace Contador_para_Wizard.Models {
                     }
                 player++;
                 }
-
             ApuestasDump();
+            numJuego++;
+            repartidor++;
+
+            if (numJuego > CantidaddeJuegos) {
+                ToWinner = true;
+                }
+            }
+
+        public static List<Jugador> GoToWinner() {
+            return Jugadores.OrderByDescending(x => x.puntos).ToList();
             }
         }
     }

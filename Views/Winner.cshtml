@@ -1,0 +1,25 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model List<Contador_para_Wizard.Models.Jugador>
+
+<h2>Felicitaciones a @Model.ElementAt(0).nombre por haber ganado la partida</h2><br />
+
+<table>
+    <thead>
+        <tr>
+            <td>JUGADOR</td>
+            <td>PUNTOS</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var player in Model){
+            <tr>
+                <td>player.nombre</td>
+                <td>player.puntos</td>
+            </tr>
+        }
+    </tbody>
+</table>

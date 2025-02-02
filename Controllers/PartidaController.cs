@@ -17,9 +17,14 @@ namespace Contador_para_Wizard.Controllers {
                 }
             ViewData["numJuego"] = PartidaManager.numJuego;
             ViewData["error"] = errormsg;
+
+
             if (IsPrincipiodeJuego) {
                 return View("Views/PartidaInicio.cshtml",PartidaManager.Jugadores);
                 } else {
+                if (PartidaManager.ToWinner == true) {
+                    return View("/Views/Winner.cshtml",PartidaManager.GoToWinner());
+                    }
                 return View("Views/PartidaFin.cshtml",PartidaManager.Jugadores);
                 }
             }
@@ -56,9 +61,6 @@ namespace Contador_para_Wizard.Controllers {
                 errormsg = ex.Message;
                 return Redirect("/partida");
                 }
-
-            PartidaManager.numJuego++;
-            PartidaManager.repartidor++;
 
             IsPrincipiodeJuego = true;
             errormsg = String.Empty;
