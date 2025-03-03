@@ -1,71 +1,72 @@
-﻿using System.Numerics;
+﻿using Contador_para_Wizard.Interfaces;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Contador_para_Wizard.Models {
-    public static class PartidaManager {
-        public static List<Jugador> Jugadores = new List<Jugador>();
-        public static int cantidadJugadores = 0;
-        public static int numJuego = 1;
-        public static int repartidor = 0;
-        public static int CantidaddeJuegos;
-        public static bool ToWinner = false;
+    public class PartidaManager : IPartidaManager {
 
-        private static void ApuestasDump() {
-            foreach (var i in Jugadores) {
+        public PartidaData Datos { get; set; }
+
+        public PartidaManager() {
+            Datos = new PartidaData();
+            }
+
+        private void ApuestasDump() {
+            foreach (var i in Datos.Jugadores) {
                 i.apuesta = 0;
                 }
             }
 
-        public static void NewGame(string[] players) {
+        public void NewGame(string[] players) {
             foreach (var p in players) {
                 if (p != "default") {
-                    Jugadores.Add(new Jugador(p));
-                    cantidadJugadores++;
+                    Datos.Jugadores.Add(new Jugador(p));
+                    Datos.cantidadJugadores++;
                     }
                 }
-            CantidaddeJuegos = 60 / cantidadJugadores;
+            Datos.CantidaddeJuegos = 60 / Datos.cantidadJugadores;
             }
 
-        public static void CrearApuestas(List<int> apuestas) {
+        public void CrearApuestas(List<int> apuestas) {
             int player = 0;
             foreach (var p in apuestas) {
-                Jugadores.ElementAt(player).apuesta = p;
+                Datos.Jugadores.ElementAt(player).apuesta = p;
                 player++;
                 }
 
-            if (apuestas.Sum() == numJuego) {
-                Jugadores.ElementAt(repartidor).apuesta = 0;
-                throw new Exception($"La cantidad de apuestas no puede ser igual al número de ronda. {repartidor} no puede apostar {numJuego}.");
+            if (apuestas.Sum() == Datos.numJuego) {
+                Datos.Jugadores.ElementAt(Datos.repartidor).apuesta = 0;
+                throw new Exception($"La cantidad de apuestas no puede ser igual al número de ronda. {Datos.repartidor} no puede apostar {Datos.numJuego}.");
                 }
             }
 
-        public static void CrearPuntos(List<int> puntos) {
-            if (puntos.Sum() != numJuego) {
+        public void CrearPuntos(List<int> puntos) {
+            if (puntos.Sum() != Datos.numJuego) {
                 throw new Exception("Algo salió mal. La cantidad de puntos repartidos no coincide con la cantidad de manos jugadas.");
                 }
 
             int player = 0;
             foreach (var p in puntos) {
-                if (Jugadores.ElementAt(player).apuesta == p) {
-                    Jugadores.ElementAt(player).puntos = Jugadores.ElementAt(player).puntos + 20 + p * 10;
+                if (Datos.Jugadores.ElementAt(player).apuesta == p) {
+                    Datos.Jugadores.ElementAt(player).puntos = Datos.Jugadores.ElementAt(player).puntos + 20 + p * 10;
                     }
-                if (Jugadores.ElementAt(player).apuesta != p) {
-                    int delta = Math.Abs(p - Jugadores.ElementAt(player).apuesta);
-                    Jugadores.ElementAt(player).puntos = Jugadores.ElementAt(player).puntos - delta * 10;
+                if (Datos.Jugadores.ElementAt(player).apuesta != p) {
+                    int delta = Math.Abs(p - Datos.Jugadores.ElementAt(player).apuesta);
+                    Datos.Jugadores.ElementAt(player).puntos = Datos.Jugadores.ElementAt(player).puntos - delta * 10;
                     }
                 player++;
                 }
             ApuestasDump();
-            numJuego++;
-            repartidor++;
+            Datos.numJuego++;
+            Datos.repartidor++;
 
-            if (numJuego > CantidaddeJuegos) {
-                ToWinner = true;
+            if (Datos.numJuego > Datos.CantidaddeJuegos) {
+                Datos.ToWinner = true;
                 }
             }
 
-        public static List<Jugador> GoToWinner() {
-            return Jugadores.OrderByDescending(x => x.puntos).ToList();
+        public List<Jugador> GoToWinner() {
+            return Datos.Jugadores.OrderByDescending(x => x.puntos).ToList();
             }
         }
     }
