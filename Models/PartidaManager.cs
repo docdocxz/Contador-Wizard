@@ -8,12 +8,11 @@ namespace Contador_para_Wizard.Models {
     public class PartidaManager : IPartidaManager {
 
         public PartidaData Datos { get; set; }
-        private string SessionFile;
 
         public PartidaManager(IHttpContextAccessor contexto) {
             HttpContext ctx = contexto.HttpContext;
             if (!File.Exists($@"{Environment.CurrentDirectory}\Partidas\{ctx.Session.GetString("SessionID")}.json")) {
-                SessionFile = CrearSesion();
+                string SessionFile = CrearSesion();
                 ctx.Session.SetString("SessionID",SessionFile);
                 }
             this.Datos = JsonSerializer.Deserialize<PartidaData>(File.ReadAllText($@"{Environment.CurrentDirectory}\Partidas\{ctx.Session.GetString("SessionID")}.json"));
@@ -23,16 +22,13 @@ namespace Contador_para_Wizard.Models {
             DateTime now = DateTime.Now;
             string PartidaName = now.Hour.ToString() + now.Minute.ToString() + now.Day.ToString() + now.Month.ToString() + now.Year.ToString();
 
-            string JSONdefaultData = "{\"jugadores\": [],\"cantidadJugadores\": 0,\"numJuego\": 0,\"repartidor\": 0,\"cantidaddeJuegos\": 0,\"toWinner\": false}";
+            PartidaData NewSession = new PartidaData { SessionID = PartidaName,Jugadores = new Jugador[0],cantidadJugadores = 0,numJuego = 1,repartidor = 0,CantidaddeJuegos = 0,ToWinner = false };
+
+            string JSONdefaultData = JsonSerializer.Serialize(NewSession);
 
             File.WriteAllText($@"{Environment.CurrentDirectory}\Partidas\{PartidaName}.json",JSONdefaultData);
 
             return PartidaName;
-            }
-
-        private void UpdateSesion() {
-            string datosactuales = JsonSerializer.Serialize(Datos);
-            File.WriteAllText($@"{Environment.CurrentDirectory}\Partidas\{SessionFile}.json",datosactuales);
             }
 
         private void ApuestasDump() {
@@ -51,7 +47,7 @@ namespace Contador_para_Wizard.Models {
             Datos.Jugadores = jugadoresbuff.ToArray();
             Datos.cantidadJugadores = jugadoresbuff.ToArray().Count();
             Datos.CantidaddeJuegos = 60 / Datos.cantidadJugadores;
-            UpdateSesion();
+            Datos.UpdateSession();
             }
 
         public void CrearApuestas(List<int> apuestas) {
@@ -63,8 +59,9 @@ namespace Contador_para_Wizard.Models {
 
             if (apuestas.Sum() == Datos.numJuego) {
                 Datos.Jugadores.ElementAt(Datos.repartidor).apuesta = 0;
-                throw new Exception($"La cantidad de apuestas no puede ser igual al número de ronda. {Datos.repartidor} no puede apostar {Datos.numJuego}.");
+                throw new Exception($"La cantidad de apuestas no puede ser igual al número de ronda." /*{Datos.repartidor} no puede apostar {}.*/);
                 }
+            Datos.UpdateSession();
             }
 
         public void CrearPuntos(List<int> puntos) {
@@ -87,9 +84,14 @@ namespace Contador_para_Wizard.Models {
             Datos.numJuego++;
             Datos.repartidor++;
 
+            if (Datos.repartidor == Datos.cantidadJugadores) {
+                Datos.repartidor = 0;
+                }
+
             if (Datos.numJuego > Datos.CantidaddeJuegos) {
                 Datos.ToWinner = true;
                 }
+            Datos.UpdateSession();
             }
 
         public List<Jugador> GoToWinner() {

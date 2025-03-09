@@ -30,7 +30,6 @@ namespace Contador_para_Wizard.Controllers {
                 ViewData["Repartidor"] = PartidaManager.Datos.Jugadores.ElementAt(PartidaManager.Datos.repartidor).nombre;
                 }
             ViewData["numJuego"] = PartidaManager.Datos.numJuego;
-            ViewData["Repartidor"] = PartidaManager.Datos.Jugadores.ElementAt(PartidaManager.Datos.repartidor).nombre;
             ViewData["error"] = errormsg;
 
 
