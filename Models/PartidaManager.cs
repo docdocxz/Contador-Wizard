@@ -1,14 +1,38 @@
 ﻿using Contador_para_Wizard.Interfaces;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace Contador_para_Wizard.Models {
     public class PartidaManager : IPartidaManager {
 
         public PartidaData Datos { get; set; }
+        private string SessionFile;
 
-        public PartidaManager() {
-            Datos = new PartidaData();
+        public PartidaManager(IHttpContextAccessor contexto) {
+            HttpContext ctx = contexto.HttpContext;
+            if (!File.Exists($@"{Environment.CurrentDirectory}\Partidas\{ctx.Session.GetString("SessionID")}.json")) {
+                SessionFile = CrearSesion();
+                ctx.Session.SetString("SessionID",SessionFile);
+                }
+            this.Datos = JsonSerializer.Deserialize<PartidaData>(File.ReadAllText($@"{Environment.CurrentDirectory}\Partidas\{ctx.Session.GetString("SessionID")}.json"));
+            }
+
+        private string CrearSesion() {
+            DateTime now = DateTime.Now;
+            string PartidaName = now.Hour.ToString() + now.Minute.ToString() + now.Day.ToString() + now.Month.ToString() + now.Year.ToString();
+
+            string JSONdefaultData = "{\"jugadores\": [],\"cantidadJugadores\": 0,\"numJuego\": 0,\"repartidor\": 0,\"cantidaddeJuegos\": 0,\"toWinner\": false}";
+
+            File.WriteAllText($@"{Environment.CurrentDirectory}\Partidas\{PartidaName}.json",JSONdefaultData);
+
+            return PartidaName;
+            }
+
+        private void UpdateSesion() {
+            string datosactuales = JsonSerializer.Serialize(Datos);
+            File.WriteAllText($@"{Environment.CurrentDirectory}\Partidas\{SessionFile}.json",datosactuales);
             }
 
         private void ApuestasDump() {
@@ -18,13 +42,16 @@ namespace Contador_para_Wizard.Models {
             }
 
         public void NewGame(string[] players) {
+            List<Jugador> jugadoresbuff = new List<Jugador>();
             foreach (var p in players) {
                 if (p != "default") {
-                    Datos.Jugadores.Add(new Jugador(p));
-                    Datos.cantidadJugadores++;
+                    jugadoresbuff.Add(new Jugador(p));
                     }
                 }
+            Datos.Jugadores = jugadoresbuff.ToArray();
+            Datos.cantidadJugadores = jugadoresbuff.ToArray().Count();
             Datos.CantidaddeJuegos = 60 / Datos.cantidadJugadores;
+            UpdateSesion();
             }
 
         public void CrearApuestas(List<int> apuestas) {

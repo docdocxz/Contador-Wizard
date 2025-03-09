@@ -23,4 +23,8 @@
     <None Include="Views\Winner.cshtml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Partidas\" />
+  </ItemGroup>
+
 </Project>
