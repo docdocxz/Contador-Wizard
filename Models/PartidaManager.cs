@@ -6,35 +6,32 @@ using System.Text.Json;
 
 namespace Contador_para_Wizard.Models {
     public class PartidaManager : IPartidaManager {
-
-        public PartidaData Datos { get; set; }
-
         public PartidaManager(IHttpContextAccessor contexto) {
             HttpContext ctx = contexto.HttpContext;
-            if (!File.Exists($@"{Environment.CurrentDirectory}\Partidas\{ctx.Session.GetString("SessionID")}.json")) {
-                string SessionFile = CrearSesion();
-                ctx.Session.SetString("SessionID",SessionFile);
-                }
-            this.Datos = JsonSerializer.Deserialize<PartidaData>(File.ReadAllText($@"{Environment.CurrentDirectory}\Partidas\{ctx.Session.GetString("SessionID")}.json"));
+            Datos = new PartidaData(ctx.Session.GetString("SessionID"));
+            ctx.Session.SetString("SessionID",Datos.SessionID);
             }
 
-        private string CrearSesion() {
-            DateTime now = DateTime.Now;
-            string PartidaName = now.Hour.ToString() + now.Minute.ToString() + now.Day.ToString() + now.Month.ToString() + now.Year.ToString();
-
-            PartidaData NewSession = new PartidaData { SessionID = PartidaName,Jugadores = new Jugador[0],cantidadJugadores = 0,numJuego = 1,repartidor = 0,CantidaddeJuegos = 0,ToWinner = false };
-
-            string JSONdefaultData = JsonSerializer.Serialize(NewSession);
-
-            File.WriteAllText($@"{Environment.CurrentDirectory}\Partidas\{PartidaName}.json",JSONdefaultData);
-
-            return PartidaName;
+        private PartidaData Datos { get; set; }
+        public Jugador[] GetJugadores() {
+            return Datos.Jugadores;
+            }
+        public Jugador GetJugadores(int index) {
+            return Datos.Jugadores.ElementAt(index);
+            }
+        public Jugador GetJugadores(string name) {
+            return Datos.Jugadores.Where(p => p.nombre == name).Single();
             }
 
-        private void ApuestasDump() {
-            foreach (var i in Datos.Jugadores) {
-                i.apuesta = 0;
-                }
+        public int GetRepartidor() {
+            return Datos.repartidor;
+            }
+        public int GetNumJuego() {
+            return Datos.numJuego;
+            }
+
+        public bool IsWinner() {
+            return Datos.ToWinner;
             }
 
         public void NewGame(string[] players) {
@@ -44,6 +41,7 @@ namespace Contador_para_Wizard.Models {
                     jugadoresbuff.Add(new Jugador(p));
                     }
                 }
+
             Datos.Jugadores = jugadoresbuff.ToArray();
             Datos.cantidadJugadores = jugadoresbuff.ToArray().Count();
             Datos.CantidaddeJuegos = 60 / Datos.cantidadJugadores;
@@ -51,6 +49,8 @@ namespace Contador_para_Wizard.Models {
             }
 
         public void CrearApuestas(List<int> apuestas) {
+            apuestas.RemoveRange(Datos.cantidadJugadores,apuestas.Count - Datos.cantidadJugadores);
+
             int player = 0;
             foreach (var p in apuestas) {
                 Datos.Jugadores.ElementAt(player).apuesta = p;
@@ -65,6 +65,8 @@ namespace Contador_para_Wizard.Models {
             }
 
         public void CrearPuntos(List<int> puntos) {
+            puntos.RemoveRange(Datos.cantidadJugadores,puntos.Count - Datos.cantidadJugadores);
+
             if (puntos.Sum() != Datos.numJuego) {
                 throw new Exception("Algo salió mal. La cantidad de puntos repartidos no coincide con la cantidad de manos jugadas.");
                 }
@@ -80,7 +82,11 @@ namespace Contador_para_Wizard.Models {
                     }
                 player++;
                 }
-            ApuestasDump();
+
+            foreach (var i in Datos.Jugadores) {
+                i.apuesta = 0;
+                }
+
             Datos.numJuego++;
             Datos.repartidor++;
 

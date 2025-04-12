@@ -2,7 +2,10 @@
 
 namespace Contador_para_Wizard.Interfaces {
     public interface IPartidaManager {
-        PartidaData Datos { get; set; }
+        Jugador[] GetJugadores();
+        int GetRepartidor();
+        int GetNumJuego();
+        bool IsWinner();
         void NewGame(string[] players);
         void CrearApuestas(List<int> apuestas);
         void CrearPuntos(List<int> puntos);
