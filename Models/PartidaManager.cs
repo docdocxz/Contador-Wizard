@@ -5,11 +5,36 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace Contador_para_Wizard.Models {
-    public class PartidaManager : IPartidaManager {
+    public partial class PartidaManager : IPartidaManager {
         public PartidaManager(IHttpContextAccessor contexto) {
             HttpContext ctx = contexto.HttpContext;
-            Datos = new PartidaData(ctx.Session.GetString("SessionID"));
-            ctx.Session.SetString("SessionID",Datos.SessionID);
+
+            if (!File.Exists($@"{Environment.CurrentDirectory}\Partidas\{ctx.Session.GetString("SessionID")}.json")) {
+                CrearNuevaSesion();
+                ctx.Session.SetString("SessionID",Datos.SessionID);
+                } else {
+                Datos = JsonSerializer.Deserialize<PartidaManager.PartidaData>(File.ReadAllText($@"{Environment.CurrentDirectory}\Partidas\{ctx.Session.GetString("SessionID")}.json"));
+                }
+            }
+
+        private void CrearNuevaSesion() {
+            DateTime now = DateTime.Now;
+            string PartidaName = now.Hour.ToString() + now.Minute.ToString() + now.Day.ToString() + now.Month.ToString() + now.Year.ToString();
+
+            Datos = new PartidaData() {
+                SessionID = PartidaName,
+                Jugadores = new Jugador[0],
+                cantidadJugadores = 0,
+                numJuego = 1,
+                repartidor = 0,
+                CantidaddeJuegos = 0,
+                ToWinner = false,
+                IsPrincipiodeJuego = true
+                };
+
+            string JSONdefaultData = JsonSerializer.Serialize(Datos);
+
+            File.WriteAllText($@"{Environment.CurrentDirectory}\Partidas\{PartidaName}.json",JSONdefaultData);
             }
 
         private PartidaData Datos { get; set; }
@@ -58,8 +83,9 @@ namespace Contador_para_Wizard.Models {
                 }
 
             if (apuestas.Sum() == Datos.numJuego) {
+                int apuestaRepartidor = Datos.Jugadores.ElementAt(Datos.repartidor).apuesta;
                 Datos.Jugadores.ElementAt(Datos.repartidor).apuesta = 0;
-                throw new Exception($"La cantidad de apuestas no puede ser igual al número de ronda." /*{Datos.repartidor} no puede apostar {}.*/);
+                throw new Exception($"La cantidad de apuestas no puede ser igual al número de ronda. {Datos.repartidor} no puede apostar {apuestaRepartidor}");
                 }
             Datos.UpdateSession();
             }
