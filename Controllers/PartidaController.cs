@@ -16,6 +16,10 @@ namespace Contador_para_Wizard.Controllers {
         public IActionResult NuevaPartida(string j1,string j2,string j3,string j4,string j5,string j6) {
             string[] arrArgsparaNewGame = { j1,j2,j3,j4,j5,j6 };
             PartidaManager.NewGame(arrArgsparaNewGame);
+
+            ViewData["Repartidor"] = PartidaManager.GetJugadores().ElementAt(PartidaManager.GetRepartidor()).nombre;
+            ViewData["numJuego"] = PartidaManager.GetNumJuego();
+
             return View("Views/PartidaInicio.cshtml",PartidaManager.GetJugadores());
             }
 
@@ -30,11 +34,12 @@ namespace Contador_para_Wizard.Controllers {
                 }
             catch (Exception ex) {
                 ViewData["error"] = ex.Message;
+                ViewData["Repartidor"] = PartidaManager.GetJugadores().ElementAt(PartidaManager.GetRepartidor()).nombre;
+                ViewData["numJuego"] = PartidaManager.GetNumJuego();
                 return View("Views/PartidaInicio.cshtml",PartidaManager.GetJugadores());
                 }
 
             ViewData["Repartidor"] = PartidaManager.GetJugadores().ElementAt(PartidaManager.GetRepartidor()).nombre;
-
             ViewData["numJuego"] = PartidaManager.GetNumJuego();
 
             if (PartidaManager.IsWinner()) {
@@ -53,10 +58,14 @@ namespace Contador_para_Wizard.Controllers {
                 PartidaManager.CrearPuntos(puntosList);
                 }
             catch (Exception ex) {
+                ViewData["Repartidor"] = PartidaManager.GetJugadores().ElementAt(PartidaManager.GetRepartidor()).nombre;
+                ViewData["numJuego"] = PartidaManager.GetNumJuego();
                 ViewData["error"] = ex.Message;
                 return View("Views/PartidaFin.cshtml",PartidaManager.GetJugadores());
                 }
 
+            ViewData["Repartidor"] = PartidaManager.GetJugadores().ElementAt(PartidaManager.GetRepartidor()).nombre;
+            ViewData["numJuego"] = PartidaManager.GetNumJuego();
 
             return View("Views/PartidaInicio.cshtml",PartidaManager.GetJugadores());
             }
