@@ -27,3 +27,5 @@ namespace Contador_para_Wizard {
             }
         }
     }
+
+//Singui ngtumi
